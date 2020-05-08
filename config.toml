@@ -1,13 +1,14 @@
-# A sample TOML config file.
-
-
-img="http://i.c3m.co/files/"
 [config]
-#buildserver="http://b.localhost/"
+#=======for live
 buildserver="http://b.duyhf.com/"
+key="MIIEowIBAAKCAQEA0xdfNAGSxOf2PbuCb7nifMt9Phq1QUR0XqSPJ0LKK"
+#======for dev
+#buildserver="http://bd.duyhf.com/"
+#key="QEA0xtestmikoPbuCb7nifMt9P1123ADckddoKKD"
+#=======
 hostname="http://client.template.localhost/"
 domainallow="http://localhost"
-workingfolder="workplace"
+workingfolder="chtemplates"
 dev=true
 #proxy="http://127.0.0.1:8866"
 zipfileextallow=".ico,.jpg,.jpeg,.png,.gif,.txt,.html,.js,.css,.eot,.svg,.ttf,.woff,.woff2,.otf"

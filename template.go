@@ -68,7 +68,7 @@ func SubmitTemplate(name string, code string) string {
 	//var templ models.Template
 
 	//check template exist:
-	var templfolder = wokingfolder + "/" + name
+	var templfolder = workingfolder + "/" + name
 	if _, err := os.Stat("./" + templfolder); err != nil {
 		if os.IsNotExist(err) {
 			// file does not exist
@@ -169,7 +169,7 @@ func SubmitTemplate(name string, code string) string {
 	// 				fileresources[strings.Replace(f.Name(), ".txt", "", 1)] = filecontent
 	// 			}
 	// 			pageresources[d.Name()] = fileresources
-	// 			b, _ = ioutil.ReadFile(wokingfolder + "/" + name + "/resources/pages/" + d.Name() + "/" + d.Name() + ".html")
+	// 			b, _ = ioutil.ReadFile(workingfolder + "/" + name + "/resources/pages/" + d.Name() + "/" + d.Name() + ".html")
 	// 			tmpl[d.Name()] = string(b)
 	// 		}
 	// 	}
@@ -240,14 +240,14 @@ func SubmitTemplate(name string, code string) string {
 	// }
 	// //model js content
 	// modelfiles := make(map[string]string)
-	// folders, err = ioutil.ReadDir(wokingfolder + "/" + name + "/js/models")
+	// folders, err = ioutil.ReadDir(workingfolder + "/" + name + "/js/models")
 	// if err == nil {
 	// 	for _, f := range folders {
 	// 		if f.IsDir() {
 	// 			continue
 	// 		}
 	// 		//read file
-	// 		b, err = ioutil.ReadFile(wokingfolder + "/" + name + "/js/models/" + f.Name())
+	// 		b, err = ioutil.ReadFile(workingfolder + "/" + name + "/js/models/" + f.Name())
 	// 		if err != nil {
 	// 			return fmt.Sprintf("cannot read file %s!", f.Name())
 	// 		}
@@ -346,7 +346,7 @@ func SubmitTemplate(name string, code string) string {
 	// data := url.Values{}
 	// data.Add("data", decodedata)
 	// data.Add("key", mycc.Key)
-	zipfile := "./" + wokingfolder + "/" + name + ".zip"
+	zipfile := "./" + workingfolder + "/" + name + ".zip"
 	err = c3mcommon.Zipit(templfolder, zipfile)
 	if !c3mcommon.CheckError("template error", err) {
 		return err.Error()

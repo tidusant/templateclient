@@ -48,25 +48,24 @@ type CommonData struct {
 }
 
 var (
-	key      string
 	pagedata models.TemplateViewData
 	pages    map[string](map[string]string)
 	curpage  string
 	curlang  string
 
-	templates    map[string]models.Template
-	loaddatadone bool
-	wokingfolder string
-	corejs       string
-	newscatslug  map[string]models.NewsCat
-	prodcatslug  map[string]ProdCat
-	newsslug     map[string]models.News
-	prodslug     map[string]Product
-	pageslug     map[string]models.PageView
-	carts        map[string]Product
-	orgData      []byte
-	userkey      string
-	mycc         MyCommon
+	templates     map[string]models.Template
+	loaddatadone  bool
+	workingfolder string
+	corejs        string
+	newscatslug   map[string]models.NewsCat
+	prodcatslug   map[string]ProdCat
+	newsslug      map[string]models.News
+	prodslug      map[string]Product
+	pageslug      map[string]models.PageView
+	carts         map[string]Product
+	orgData       []byte
+	userkey       string
+	mycc          MyCommon
 )
 
 func init() {
@@ -79,18 +78,13 @@ func init() {
 	pagedata.Resources = make(map[string]string)
 	pagedata.Configs = make(map[string]string)
 	curlang = "vi"
-	wokingfolder = viper.GetString("config.workingfolder")
+	workingfolder = viper.GetString("config.workingfolder")
 	//check auth
-	log.Printf("load key...")
-	b, err := ioutil.ReadFile("key.txt")
-	if err != nil {
-		log.Errorf("cannot read compile file %s", err)
-	} else {
-		key = string(b)
-	}
-	userkey = key
+	log.Printf("check key...")
+
+	userkey = viper.GetString("config.key")
 	mycc.SetKey(userkey)
-	os.Mkdir(wokingfolder, os.ModePerm)
+	os.Mkdir(workingfolder, os.ModePerm)
 
 }
 
@@ -207,7 +201,7 @@ func main() {
 
 	})
 
-	router.Static("/files/", "./"+wokingfolder+"/")
+	router.Static("/files/", "./"+workingfolder+"/")
 	router.Static("/images/", "./images/")
 	router.GET("/test", func(c *gin.Context) {
 		c.String(http.StatusOK, "load template fail!")
@@ -235,7 +229,7 @@ func main() {
 			c.Header("Access-Control-Allow-Credentials", "true")
 			//check working dir
 			result = renderPage(name, "", strconv.Itoa(port))
-			//router.LoadHTMLGlob(wokingfolder + "/" + name + "/*.html")
+			//router.LoadHTMLGlob(workingfolder + "/" + name + "/*.html")
 
 		} else {
 			log.Debugf("Not allow " + c.Request.Host)
@@ -272,7 +266,7 @@ func main() {
 
 	// 		//check working dir
 	// 		result = renderPage(name, slug, strconv.Itoa(port))
-	// 		//router.LoadHTMLGlob(wokingfolder + "/" + name + "/*.html")
+	// 		//router.LoadHTMLGlob(workingfolder + "/" + name + "/*.html")
 
 	// 	} else {
 	// 		log.Debugf("Not allow " + c.Request.Host)
@@ -430,20 +424,20 @@ func renderPage(name, slug, port string) string {
 	dev := viper.GetBool("config.dev")
 	siteurl := `http://localhost:` + port + `/template/` + name + `/`
 	Templateurl := "/files/" + name + "/"
-	TemplatePath := wokingfolder + "/" + name + "/"
+	TemplatePath := workingfolder + "/" + name + "/"
 	initjs := ""
 
 	//load page html
 	html := make(map[string]string)
 	pages := make(map[string]PageData)
 	pagesdesc := make(map[string]PageDesc)
-	folders, err := ioutil.ReadDir(wokingfolder + "/" + name + "/resources/pages")
+	folders, err := ioutil.ReadDir(workingfolder + "/" + name + "/resources/pages")
 	if err == nil {
 		for _, d := range folders {
 			if !d.IsDir() {
 				continue
 			}
-			files, err := ioutil.ReadDir(wokingfolder + "/" + name + "/resources/pages/" + d.Name())
+			files, err := ioutil.ReadDir(workingfolder + "/" + name + "/resources/pages/" + d.Name())
 			if err == nil {
 
 				fileresources := make(map[string]map[string]string)
@@ -452,7 +446,7 @@ func renderPage(name, slug, port string) string {
 						continue
 					}
 					blockname := strings.Replace(f.Name(), ".txt", "", 1)
-					b, err := ioutil.ReadFile(wokingfolder + "/" + name + "/resources/pages/" + d.Name() + "/" + f.Name())
+					b, err := ioutil.ReadFile(workingfolder + "/" + name + "/resources/pages/" + d.Name() + "/" + f.Name())
 					if err != nil {
 
 					}
@@ -474,7 +468,7 @@ func renderPage(name, slug, port string) string {
 					fileresources[blockname] = datavalue
 				}
 
-				b, _ := ioutil.ReadFile(wokingfolder + "/" + name + "/" + d.Name() + ".html")
+				b, _ := ioutil.ReadFile(workingfolder + "/" + name + "/" + d.Name() + ".html")
 				html[d.Name()] = string(b)
 				var PData models.PageView
 				PData.Title = inflect.Camelize(d.Name())
@@ -512,7 +506,7 @@ func renderPage(name, slug, port string) string {
 	initjs += `var blockdatas=` + string(b) + `;`
 
 	//resource
-	b, _ = ioutil.ReadFile(wokingfolder + "/" + name + "/resources/lang.txt")
+	b, _ = ioutil.ReadFile(workingfolder + "/" + name + "/resources/lang.txt")
 	filecontent := string(b)
 	//convert to \n line
 	filecontent = strings.Replace(filecontent, "\r\n", "\n", -1)
@@ -539,36 +533,36 @@ func renderPage(name, slug, port string) string {
 	initjs += `var commondata=` + string(b) + `;`
 
 	initjs += corejs
-	// b, _ = ioutil.ReadFile(wokingfolder + "/" + name + "/js/redirectinit.js")
+	// b, _ = ioutil.ReadFile(workingfolder + "/" + name + "/js/redirectinit.js")
 	// initjs += string(b)
 	//javascript model
 	jsmodel := ""
-	folders, err = ioutil.ReadDir(wokingfolder + "/" + name + "/js/models")
+	folders, err = ioutil.ReadDir(workingfolder + "/" + name + "/js/models")
 	if err == nil {
 		for _, f := range folders {
 			if f.IsDir() || filepath.Ext(f.Name()) != ".js" {
 				continue
 			}
-			b, _ = ioutil.ReadFile(wokingfolder + "/" + name + "/js/models/" + f.Name())
+			b, _ = ioutil.ReadFile(workingfolder + "/" + name + "/js/models/" + f.Name())
 			jsmodel += "\n" + string(b)
 		}
 	}
 	initjs = strings.Replace(initjs, "{{models}}", jsmodel, -1)
 	//layout.html
-	folders, err = ioutil.ReadDir(wokingfolder + "/" + name)
+	folders, err = ioutil.ReadDir(workingfolder + "/" + name)
 	if err == nil {
 		for _, f := range folders {
 			if f.IsDir() || filepath.Ext(f.Name()) != ".html" || f.Name() == "index.html" {
 				continue
 			}
-			b, _ = ioutil.ReadFile(wokingfolder + "/" + name + "/" + f.Name())
+			b, _ = ioutil.ReadFile(workingfolder + "/" + name + "/" + f.Name())
 			html[strings.Replace(f.Name(), filepath.Ext(f.Name()), "", 1)] = string(b)
 		}
 	}
 	b, _ = json.Marshal(html)
 	initjs = strings.Replace(initjs, "{{html}}", string(b), -1)
 	//configs
-	b, _ = ioutil.ReadFile(wokingfolder + "/" + name + "/resources/config.txt")
+	b, _ = ioutil.ReadFile(workingfolder + "/" + name + "/resources/config.txt")
 	filecontent = string(b)
 	//convert to \n line
 	filecontent = strings.Replace(filecontent, "\r\n", "\n", -1)
@@ -587,7 +581,7 @@ func renderPage(name, slug, port string) string {
 	b, _ = json.Marshal(datavalue)
 	initjs = strings.Replace(initjs, "{{configs}}", string(b), -1)
 
-	// b, _ = ioutil.ReadFile(wokingfolder + "/" + name + "/js/main.js")
+	// b, _ = ioutil.ReadFile(workingfolder + "/" + name + "/js/main.js")
 	// initjs += string(b)
 
 	initjs = strings.Replace(initjs, "{{Templateurl}}", Templateurl, -1)
@@ -600,11 +594,11 @@ func renderPage(name, slug, port string) string {
 		initjs = c3mcommon.JSMinify(initjs)
 	}
 	//init.js
-	//ioutil.WriteFile(wokingfolder+"/"+name+"/js/core/init.js", []byte(initjs), 0644)
+	//ioutil.WriteFile(workingfolder+"/"+name+"/js/core/init.js", []byte(initjs), 0644)
 	//main html
-	b, _ = ioutil.ReadFile(wokingfolder + "/" + name + "/index.html")
+	b, _ = ioutil.ReadFile(workingfolder + "/" + name + "/index.html")
 	str := string(b)
-	//b, _ = ioutil.ReadFile(wokingfolder + "/" + name + "/layout.html")
+	//b, _ = ioutil.ReadFile(workingfolder + "/" + name + "/layout.html")
 	var re = regexp.MustCompile(`<body.*?>(.*?)</body>`)
 	//layout := string(b)
 	str = re.ReplaceAllString(str, `<body></body>`)
@@ -679,7 +673,7 @@ func gettemplate(code string) bool {
 	// 	t.Images = mycrypto.DecodeW(t.Images)
 	// 	t.Configs = mycrypto.DecodeW(t.Configs)
 	// 	t.Langs = mycrypto.DecodeW(t.Langs)
-	// 	templateFolder := "./" + wokingfolder + "/" + t.Title + "/"
+	// 	templateFolder := "./" + workingfolder + "/" + t.Title + "/"
 
 	// 	//remove all content and recreate data
 	// 	//os.RemoveAll(templateFolder)
@@ -796,9 +790,9 @@ func loadtemplate() bool {
 		json.Unmarshal([]byte(resp.Data), &objmapData)
 
 		//get all template from local folder
-		files, _ := ioutil.ReadDir("./" + wokingfolder)
+		files, _ := ioutil.ReadDir("./" + workingfolder)
 		for _, f := range files {
-			if f.IsDir() && f.Name() != "scripts" {
+			if f.IsDir() && f.Name() != "scripts" && f.Name() != ".git" {
 				if _, ok := templates[f.Name()]; !ok {
 					templates[f.Name()] = models.Template{Title: f.Name()}
 				}
@@ -971,7 +965,7 @@ func parseProductItem(orgProd models.Product) Product {
 
 func loadtemplatedata(name string, slug string) {
 	timestart := time.Now()
-	var templfolder = wokingfolder + "/" + name
+	var templfolder = workingfolder + "/" + name
 	if _, err := os.Stat("./" + templfolder); err != nil {
 		if os.IsNotExist(err) {
 			log.Errorf("template folder does not exist")
