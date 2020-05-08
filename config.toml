@@ -1,0 +1,13 @@
+# A sample TOML config file.
+
+
+img="http://i.c3m.co/files/"
+[config]
+#buildserver="http://b.localhost/"
+buildserver="http://b.duyhf.com/"
+hostname="http://client.template.localhost/"
+domainallow="http://localhost"
+workingfolder="workplace"
+dev=true
+#proxy="http://127.0.0.1:8866"
+zipfileextallow=".ico,.jpg,.jpeg,.png,.gif,.txt,.html,.js,.css,.eot,.svg,.ttf,.woff,.woff2,.otf"
